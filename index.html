@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>El Incidente del Baño</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="./assets/index-BxTF14Hx.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-BJlKlC_S.css">
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- Letterbox para cinemáticas -->
+  <div id="letterbox"><div class="bar top"></div><div class="bar bottom"></div></div>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div id="hud-left">
+      <div id="hud-char"><span id="hud-char-dot"></span><span id="hud-char-name">GONZALO</span></div>
+      <div id="hud-clock">7:00</div>
+      <div id="hud-period">Entrada</div>
+    </div>
+    <div id="hud-mission">
+      <div id="hud-mission-title">Un día normal</div>
+      <div id="hud-objective">Entra a la secundaria</div>
+      <div id="hud-distance"></div>
+    </div>
+    <div id="mapbox">
+      <canvas id="minimap"></canvas>
+      <canvas id="bigmap" class="hidden"></canvas>
+      <div id="map-hint"><kbd>N</kbd> tamaño · <kbd>+</kbd><kbd>−</kbd> zoom · <kbd>M</kbd> mapa completo</div>
+    </div>
+    <div id="crosshair"></div>
+    <div id="prompt" class="hidden"><kbd>E</kbd><span>Interactuar</span></div>
+    <div id="lock-hint" class="hidden">Haz clic para controlar la cámara</div>
+  </div>
+
+  <div id="waypoint" class="hidden"><div class="wp-arrow">▼</div><div class="wp-dist"></div></div>
+
+  <!-- Notificaciones -->
+  <div id="notify"></div>
+  <div id="banner" class="hidden"><div class="banner-kicker"></div><div class="banner-title"></div><div class="banner-sub"></div></div>
+
+  <!-- Diálogo -->
+  <div id="dialog" class="hidden">
+    <div id="dialog-name"></div>
+    <div id="dialog-text"></div>
+    <div id="dialog-next">▶ Espacio / Clic</div>
+  </div>
+  <div id="choices" class="hidden"></div>
+
+  <!-- QTE -->
+  <div id="qte" class="hidden">
+    <div id="qte-title"></div>
+    <div id="qte-key"></div>
+    <div id="qte-bar"><div id="qte-fill"></div></div>
+    <div id="qte-hint"></div>
+  </div>
+
+  <!-- Menú principal -->
+  <div id="menu" class="screen hidden">
+    <div class="menu-title-wrap">
+      <div class="menu-kicker">Colegio Gante · Secundaria</div>
+      <h1 class="menu-title">EL INCIDENTE<br/>DEL BAÑO</h1>
+      <div class="menu-sub">Una historia que nadie pidió recordar.</div>
+      <div class="menu-sub2">Todo comenzó con el rap de Vegetta777.</div>
+    </div>
+    <div class="menu-buttons">
+      <button data-act="new">Nueva partida</button>
+      <button data-act="continue" id="btn-continue">Continuar</button>
+      <button data-act="select">Seleccionar personaje</button>
+      <button data-act="free" id="btn-free" class="hidden">Exploración libre</button>
+      <button data-act="settings">Configuración</button>
+      <button data-act="credits">Créditos</button>
+    </div>
+    <div class="menu-foot">v1.0 · Una historia, dos perspectivas y un rap que lo arruinó todo.</div>
+  </div>
+
+  <!-- Selección de personaje -->
+  <div id="select" class="screen hidden">
+    <div class="select-head">ELIGE TU PERSPECTIVA</div>
+    <div class="select-cards">
+      <div class="card blue" data-char="gonzalo">
+        <div class="card-name">GONZALO</div>
+        <div class="card-shirt">Playera azul</div>
+        <div class="card-desc">Impulsivo, gracioso y algo distraído. No vio lo que pasó antes de entrar al baño.</div>
+        <div class="card-badge" data-badge="gonzalo"></div>
+      </div>
+      <div class="card red" data-char="manuel">
+        <div class="card-name">MANUEL</div>
+        <div class="card-shirt">Playera roja</div>
+        <div class="card-desc">Reservado. Sólo quería lavarse las manos en paz.</div>
+        <div class="card-badge" data-badge="manuel"></div>
+      </div>
+    </div>
+    <div class="select-buttons">
+      <button data-act="back">← Volver</button>
+      <button data-act="start" class="primary">COMENZAR HISTORIA</button>
+    </div>
+  </div>
+
+  <!-- Pausa -->
+  <div id="pause" class="screen hidden">
+    <div class="panel">
+      <h2>PAUSA</h2>
+      <div class="pause-buttons">
+        <button data-act="resume">Continuar</button>
+        <button data-act="schedule">Horario y misiones</button>
+        <button data-act="map">Mapa</button>
+        <button data-act="settings">Configuración</button>
+        <button data-act="save">Guardar partida</button>
+        <button data-act="mainmenu">Volver al menú principal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Horario / misiones -->
+  <div id="tab" class="screen hidden">
+    <div class="panel wide">
+      <h2>HORARIO Y MISIONES</h2>
+      <div class="tab-cols">
+        <div><h3>Horario</h3><table id="schedule-table"></table></div>
+        <div><h3>Misiones</h3><div id="mission-list"></div></div>
+      </div>
+      <div class="hint">Tab / Esc para cerrar</div>
+    </div>
+  </div>
+
+  <!-- Mapa -->
+  <div id="map" class="screen hidden">
+    <div class="panel wide">
+      <h2>MAPA DEL COLEGIO</h2>
+      <div class="map-floors"><button data-floor="0" class="on">Planta baja</button><button data-floor="1">Segundo piso</button></div>
+      <canvas id="map-canvas" width="900" height="560"></canvas>
+      <div class="hint">1 / 2 cambiar de piso · M / Esc para cerrar</div>
+    </div>
+  </div>
+
+  <!-- Configuración -->
+  <div id="settings" class="screen hidden">
+    <div class="panel">
+      <h2>CONFIGURACIÓN</h2>
+      <label>Volumen general <input type="range" min="0" max="1" step="0.05" data-set="master" /></label>
+      <label>Música <input type="range" min="0" max="1" step="0.05" data-set="music" /></label>
+      <label>Efectos <input type="range" min="0" max="1" step="0.05" data-set="sfx" /></label>
+      <label>Sensibilidad del mouse <input type="range" min="0.2" max="3" step="0.1" data-set="sens" /></label>
+      <label>Invertir eje Y <input type="checkbox" data-set="invertY" /></label>
+      <label>Sombras <select data-set="shadows"><option value="0">Apagadas</option><option value="1">Normales</option><option value="2">Altas</option></select></label>
+      <label>Escala de render <select data-set="scale"><option value="0.75">75%</option><option value="1">100%</option><option value="1.5">150%</option><option value="2">Retina</option></select></label>
+      <label>Mapa en pantalla <select data-set="mapMode"><option value="0">Apagado</option><option value="1">Minimapa</option><option value="2">Mapa grande</option></select></label>
+      <div class="pause-buttons"><button data-act="close">Listo</button></div>
+    </div>
+  </div>
+
+  <!-- Créditos -->
+  <div id="credits" class="screen hidden">
+    <div class="credits-roll">
+      <h1 class="menu-title small">EL INCIDENTE DEL BAÑO</h1>
+      <p class="c-sub">Una historia, dos perspectivas y un rap que lo arruinó todo.</p>
+      <h3>Basado en hechos reales de</h3><p>Gonzalo &amp; Manuel</p>
+      <h3>Protagonistas</h3><p>Gonzalo — Playera azul<br/>Manuel — Playera roja</p>
+      <h3>Pacificador oficial</h3><p>Juan</p>
+      <h3>Los que empezaron todo</h3><p>Brayan, Kevin y Ulises</p>
+      <h3>Cuerpo docente</h3><p>Profe Ramírez · Maestra Lupita · Profe Herrera<br/>Profe Galindo · Miss Karen · Profe Toño</p>
+      <h3>Dirección</h3><p>Directora Martínez</p>
+      <h3>Motor</h3><p>Three.js · TypeScript · Vite · Web Audio</p>
+      <h3>Agradecimientos especiales</h3><p>A todos los que alguna vez pidieron el rap de Vegetta777<br/>y nunca imaginaron las consecuencias.</p>
+      <p class="c-end">Nadie salió ganando. Excepto la anécdota.</p>
+      <p class="hint">Esc o clic para volver</p>
+    </div>
+  </div>
+
+  <!-- Fin de historia -->
+  <div id="ending" class="screen hidden">
+    <div class="panel">
+      <div class="banner-kicker">HISTORIA COMPLETADA</div>
+      <h2 id="ending-title"></h2>
+      <p id="ending-text"></p>
+      <div class="pause-buttons">
+        <button data-act="other">Vivirlo como el otro protagonista</button>
+        <button data-act="free">Exploración libre</button>
+        <button data-act="credits">Créditos</button>
+        <button data-act="mainmenu">Menú principal</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="fade"></div>
+  <div id="loading"><div class="menu-title small">EL INCIDENTE DEL BAÑO</div><div class="load-sub">Construyendo la secundaria…</div><div class="load-start hidden">Clic para comenzar</div></div>
+
+</body>
+</html>
